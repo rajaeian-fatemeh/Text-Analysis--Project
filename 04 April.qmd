@@ -23,7 +23,40 @@ nltk.download('wordnet')
 ```
 
 ```{python}
-df = pd.read_csv("E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\JobDataAnalysis.csv")
+import pandas as pd
+
+# Dictionary containing filename and path for each CSV file
+file_paths = {
+    "data_analyst_apr.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\JobDataAnalysis.csv",
+    "data_analyst_may.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\15 May\\JobDataAnalysis.csv",
+    "data_engineer_apr.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\JobDataEngineer.csv",
+    "data_engineer_may.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\15 May\\JobDataEngineer.csv",
+    "machine_learning_engineer_apr.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\JobMachinLearningEngineer.csv",
+    "machine_learning_engineer_may.csv": "E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\15 May\\JobMachinLearningEngineer.csv"
+}
+
+# Initialize an empty list to store DataFrames
+dfs = []
+
+# Iterate through each filename and path in the dictionary
+for filename, filepath in file_paths.items():
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(filepath)
+    # Append the DataFrame to the list
+    dfs.append(df)
+
+# Concatenate all DataFrames in the list along the rows (axis=0)
+df = pd.concat(dfs, ignore_index=True)
+
+# Display the combined DataFrame
+print(df.head())
+
+# Optionally, you can save the combined DataFrame to a new CSV file
+df.to_csv('combined_data.csv', index=False)
+```
+
+```{python}
+#df = pd.read_csv("E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\JobDataAnalysis.csv")
 
 ```
 ```{python}
@@ -31,6 +64,7 @@ print(df.head())
 ```
 ```{python}
 df.shape
+print(df.columns)
 ```
 
 ```{python}

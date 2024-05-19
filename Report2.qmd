@@ -1,0 +1,362 @@
+** Text Analysis of Job Descriptions to Extract
+Skill-set from Job Ads **
+
+# Abstract
+As Machine Learning (ML) and Artificial Intelligence (AI) continue to proliferate, the emergence of various job titles in the data-related domain has led to confusion among job seekers regarding the specific requirements and job descriptions associated with each role. This project aims to address this issue by analyzing job descriptions and requirements for four prominent job titles—"Data Analyst," "Data Scientist," "Data Engineer," and "Machine Learning Engineer"—posted on the XING job portal. The dataset, comprising 99 cases and 7 columns, was scraped from XING.com with a focus on the US market because of English language.
+The preprocessing step involved dropping columns with no valuable data and retaining three columns: job title, job description, and background needed. Text preprocessing techniques such as converting text to lowercase, removing punctuation, tokenization, stopword removal using NLTK's English stopwords list, and lemmatization using spaCy's English model were applied.
+Exploratory Data Analysis (EDA) techniques were then employed to analyze word frequency distributions in job descriptions and backgrounds for each job title. Additionally, predefined data-related skills were used to extract skills from all job titles and individually for each job title.
+The results revealed distinct skill sets expected by employers for data analysts, data scientists, data engineers, and machine learning engineers, with a particular emphasis on technical and software-related proficiencies. Word cloud visualizations further highlighted the prominent skills associated with each job title. This project provides valuable insights for job seekers and organizations seeking to understand the evolving landscape of data-related roles and the requisite skill sets for each.
+
+# Introduction
+Data-related job advertisements frequently seem unpolished. They often consist of extensive lists of technologies, programming languages, or software tools, sometimes in unexpected combinations. For instance, an ideal candidate should master a wide range of tools from Tableau to Tensorflow. 
+This project aims at the types of skills employers seek in data professionals and how these skills may vary across different roles.
+
+# Data Collection
+The dataset was extracted from xing.com. Initially, I applied a filter using the keyword "data" and limited the search to Germany. Subsequently, I adjusted the location filter to the United States and incorporated specific keywords such as "machine learning" and "data engineer." The extraction process was conducted using the "Web Scraper" extension. The dataset includes 99 job ads and 7 columns. 
+
+[99 rows x 7 columns]
+
+# Data Recognition
+The dataset included columns as follows: 
+web-scraper-order        
+web-scraper-start-url    
+Job                      
+Job-href                 
+JobTitle                 
+JobDescription           
+Background  
+
+To better understand the job title distribution, I plot the frequency of each "JobTitle". 
+Although within the data scraping process, the filteration based on each job titles was applyed, only 40 job titles were matched to the four defined categories which were "Data Analyst", "Data Scientist", "Data Engineer" and "Machine Learning Engineer". The plot also showed the destribution of each job title as follows:
+Machine learning Engineer: 26
+Data Scientist: 10
+Data Analyst:4
+Data Engineer: 1
+
+# Preprocessing data
+## Missing value handeling
+In order to prevent any potential errors in subsequent preprocessing steps, the presence of missing values in each column was initially examined. The resulting findings are displayed below:
+
+Number of missing values in each column:
+web-scraper-order         0
+web-scraper-start-url     0
+Job                       0
+Job-href                  0
+JobTitle                  0
+JobDescription           10
+Background               14
+dtype: int64
+
+To handle missing values in the JobDescription and Background columns by replacing them with non-NaN rows from the same columns, I use the forward fill (ffill) method. This method fills the missing values with the most recent non-null value along the specified axis.
+
+Number of missing values in each column:
+web-scraper-order        0
+web-scraper-start-url    0
+Job                      0
+Job-href                 0
+JobTitle                 0
+JobDescription           0
+Background               0
+dtype: int64
+
+## Droping garbage data
+In order to improve the dataset handling process, certain columns indicating no pertinent data were removed. Specifically, columns such as 'web-scraper-order', 'web-scraper-start-url', 'Job', and 'Job-href' were eliminated, while only three columns, namely 'JobTitle', 'JobDescription', and 'Background', were retained.
+Therefore, the dataset shape:
+
+[99 rows x 3 columns]
+
+## Text preprocessing
+To preprocess the text in the "JobDescription" and "Background" columns, I performed several text preprocessing steps such as converting text to lowercase, removing punctuation, tokenization, removing stopwords, and lemmatization. 
+
+preprocessing steps included:
+
+1. Convert text to lowercase.
+2. Remove punctuation.
+3. Tokenize the text into words.
+4. Remove stopwords using NLTK's English stopwords list.
+5. Lemmatize the words using spaCy's English model.
+6. Join the lemmatized tokens back into a string.
+
+# Analysis
+Exploratory Data Analysis (EDA) is a critical process in data science that involves examining and visualizing data to uncover patterns, spot anomalies, test hypotheses, and check assumptions. In this project, I used EDA for the analysis of job portal data for several reasons:
+
+1. Understanding Data Characteristics: EDA helped to understand the structure and characteristics of the dataset, including the distribution of job titles, the frequency of specific skills, and the overall composition of the data.
+
+2. Identifying Key Skills: Through EDA, the most frequently mentioned skills was identified across different job titles. Visualization techniques like bar charts and word clouds also highlight which skills are most sought after for roles such as Data Analyst, Data Scientist, Data Engineer, and Machine Learning Engineer.
+
+3. Comparing Job Titles: EDA allows the comparison of skill sets required for various job titles. By analyzing and visualizing the data, the unique and common skills demanded for each role was discerned, helping to differentiate the specific qualifications and expertise employers seek.
+
+## Calculate word frequency distribution in "Job Description" and "Background"
+To start, I calculated the word frequency distribution for two columns, "Background" and "JobDescription," in a DataFrame. It uses the NLTK library for tokenization and frequency distribution and then displays the top 20 most frequent words in each column.
+Background frequency distribution displays the top 20 most frequent words found in the "Background" column, providing insight into the common terms and skills mentioned in this section of the job ads.
+Job description frequency distribution also displays the top 20 most frequent words found in the "JobDescription" column, highlighting the key terms and skills emphasized in the job descriptions.
+
+## ## Calculate word frequency distribution in "Job Description" and "Background" for each job title "Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"
+In this step, I calculated the word frequency distribution for the "JobDescription" and "Background" column, grouped by specific job titles. To specify, the dataframe was filtered to include only rows where the "JobTitle" column contains the job title "Job Description" and "Background" for each job title "Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer". 
+This step provides a detailed analysis of word frequencies in job descriptions grouped by specific job titles. By identifying the most common words for each job title, I gain insights into the skills and qualifications that are most frequently sought by employers for different roles. 
+However, the frequent words detected in this step do not indicate valuable informaton about specific skills related to data rols job. Therefore, for the next step, another analysis will be conducted using predefined data-skills. 
+
+
+## Using predefined data-skills  to extract skills from all job title
+In this step, I calculated the most frequent predefined skills across all job titles by searching in both the "JobDescription" and "Background" columns.
+A list of predefined skills is created, which includes commonly sought-after skills in the job market such as programming languages, tools, and techniques.
+
+skills_list = [
+    'python', 'r', 'sql', 'java', 'c++', 'scala', 'hadoop', 'spark', 'tableau', 'sas', 'excel',
+    'power bi', 'aws', 'azure', 'google cloud', 'tensorflow', 'keras', 'pytorch', 'machine learning',
+    'deep learning', 'data analysis', 'data engineering', 'data visualization', 'big data', 'nlp', 
+    'natural language processing', 'statistics', 'data mining', 'data wrangling', 'data cleaning'
+]
+
+
+This step provides a comprehensive analysis of the most frequent predefined skills mentioned in job ads, by examining the "JobDescription" and "Background" columns. The resulting bar chart visually represents the top 20 skills, offering a clear overview of the key qualifications sought by employers. 
+
+## Using predefined data-skills  to extract skills from each job title "Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"
+Finally, in this step, I calculated the frequency distribution of predefined skills for each job title and visualizes the top skills using bar charts.
+
+This step performed a detailed analysis of the frequency distribution of predefined skills across different job titles by examining the "JobDescription" and "Background" columns. The resulting bar charts offer a clear overview of the most commonly required skills for "Data Analyst", "Data Scientist", "Data Engineer", and "Machine Learning Engineer" roles, highlighting the essential qualifications sought by employers in the data industry.
+
+## Word cloud
+In this step, I calculated and combined the word frequencies for predefined job titles ("Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer") from the "JobDescription" and "Background" columns. It then generated a word cloud that visually represented the most common words across these job titles, providing a comparative view of the key terms and skills associated with each role. This visualization helped to easily identify the relative importance and frequency of different words in the job descriptions and background requirements for various data-related positions.
+
+# Result
+## Most frequent words for each job title
+In this section, I provide most frequent words for four data role on which this project focus.The results are as follows:
+
+### Data Analyst
+1. The prominence of "datum" or "data" highlights the core focus of the role. Data analysts are primarily concerned with collecting, cleaning, analyzing, and interpreting data to provide insights and support decision-making processes.
+2. "System" suggests that data analysts often work with various data systems and software tools. This could involve data management systems, analytics platforms, and database systems. It reflects the necessity for data analysts to have technical skills in handling and interfacing with different systems.
+3. The word "analysis" underscores the fundamental activity of the role. Data analysts are expected to perform various types of data analysis, such as statistical analysis, trend analysis, and predictive analysis, to derive meaningful insights from data.
+4. The inclusion of "business" indicates the role's alignment with business objectives. Data analysts often work closely with business teams to translate data insights into business strategies and actions. This highlights the importance of understanding business processes and goals.
+5. "Report" reflects the necessity for data analysts to communicate their findings effectively. Creating reports is a critical part of the role, involving the presentation of data insights in a clear and actionable format for stakeholders.
+6. "Manage" indicates responsibilities related to managing data, projects, or teams. This could involve data governance, overseeing data-related projects, or managing databases and data collection processes.
+7. The word "process" suggests that data analysts are involved in analyzing and optimizing processes. This could include business process analysis, improving data collection methods, or streamlining data workflows to enhance efficiency and accuracy.
+
+### Trends and Implications
+1. Data-centric roles: The centrality of "datum" (data) highlights that data analysts are primarily engaged with data-related tasks, emphasizing the importance of strong data handling and analysis skills.
+
+2. Technical proficiency: The words "system" and "process" reflect the technical nature of the role. Data analysts must be adept at using various systems and understanding processes to efficiently manage and analyze data.
+
+3. Business integration: The presence of "business" and "report" indicates that data analysts need to align their work with business objectives and effectively communicate their findings. This trend points to the importance of having both analytical and business insight.
+
+4. Management and optimization: The words "manage" and "process" suggest that data analysts are not only analyzing data but also involved in managing data-related projects and optimizing processes. This trend highlights the evolving role of data analysts as key players in improving organizational efficiency and decision-making.
+
+### Data Scientist
+1. Like in the "Data Analyst" roles, the prominence of "datum" (or "data") in "Data Scientist" roles underscores the central focus on data. Data scientists are heavily engaged in working with data to develop models and derive insights.
+2. The inclusion of "team" highlights the collaborative nature of data science roles. Data scientists often work in multidisciplinary teams, which may include data engineers, analysts, and business stakeholders. This emphasizes teamwork and cross-functional collaboration.
+3. The word "analytics" points to the use of advanced analytical methods and tools in data science. It signifies the role's involvement in performing complex data analyses, often leveraging machine learning and statistical models.
+4. "Insight" reflects the ultimate goal of data science: to transform data into actionable insights. Data scientists aim to uncover patterns and trends that can inform business decisions and strategies.
+5. The presence of "stakeholders" indicates the importance of communication and collaboration with key business decision-makers. Data scientists must effectively convey their findings to stakeholders to drive business impact.
+
+### Data Engineer
+1. As with data scientists and data analysts, "data" is a central term, underscoring that data engineers are fundamentally concerned with data. Their role involves managing, organizing, and ensuring the availability and integrity of data for other data professionals.
+2. The word "pipeline" is highly indicative of the core responsibilities of data engineers. They design, build, and maintain data pipelines, which are automated processes that extract, transform, and load (ETL) data from various sources to destinations, making data accessible for analysis and machine learning.
+3. "Tool" reflects the technical nature of the data engineering role, emphasizing the importance of proficiency with various software and tools used for data processing, such as Apache Kafka, Apache Spark, and database management systems.
+4. While "model" might refer to data models (schemas) more frequently in data engineering than predictive models, it shows that data engineers work closely with data scientists. They ensure that data is correctly structured and optimized for machine learning models.
+5. "Build" underscores the engineering aspect of the role. Data engineers are responsible for constructing the infrastructure that supports data processing and analysis. This includes creating data pipelines, databases, and large-scale data processing systems.
+
+### Machine Learning Engineer
+1. "Design" indicates that machine learning engineers are involved in the architectural aspects of creating machine learning systems. This includes designing the pipeline for model training, validation, deployment, and integration with existing systems.
+2. The term "ML" emphasizes the core focus on machine learning techniques and technologies. Machine learning engineers need to have a strong grasp of ML concepts, algorithms, and frameworks.
+3. The inclusion of "AI" suggests that machine learning engineers often work within the broader context of artificial intelligence, applying ML techniques to create intelligent systems that can learn and adapt.
+4. The word "generative" likely refers to generative models and generative AI, such as Generative Adversarial Networks (GANs) and other models that create new data instances. This highlights the cutting-edge and innovative aspect of the role.
+5. "Training" underscores the importance of the model training process in the role of a machine learning engineer. This involves preparing datasets, choosing appropriate algorithms, and iteratively improving model performance.
+6. "Service" indicates that machine learning engineers often work on deploying models as services. This involves making models accessible through APIs, integrating them into applications, and ensuring they are scalable and reliable in production environments.
+
+### Trends and Implications
+1. Focus on model lifecycle: Machine learning engineers are deeply involved in the entire lifecycle of ML models—from design and training to deployment and maintenance.
+2. Technical proficiency in ML and AI: The emphasis on ML and AI highlights the necessity for advanced technical skills and knowledge of state-of-the-art machine learning techniques and frameworks.
+3. Generative AI: The presence of "generative" suggests a trend towards innovative AI applications that go beyond traditional predictive modeling, indicating a forward-thinking and experimental aspect of the role.
+4. Service-oriented architecture: The mention of "service" implies a focus on deploying models as scalable and reliable services, indicating the need for skills in software engineering and system design.
+
+## Most frequent skills for all job titles
+After applying EDA on all 99 rows related to data roles, the ranking results are as follows:
+
+1. Python's prominence at the top of the list highlights its importance in data-related roles. Its versatility, ease of learning, and wide array of libraries (like pandas, NumPy, and scikit-learn) make it indispensable for data analysis, machine learning, and automation tasks.
+2. SQL is fundamental for data querying and database management. Its high ranking underscores its necessity for data extraction, manipulation, and integration tasks. Most data-related roles require proficiency in SQL to handle and manipulate structured data.
+3. PyTorch’s position indicates a strong demand for deep learning frameworks. PyTorch is favored for its dynamic computation graph, ease of use, and strong community support, making it a popular choice for research and production in AI and machine learning.
+4. The prominence of Azure suggests that cloud computing skills are crucial. Microsoft Azure provides a suite of tools for data storage, machine learning, and data processing, highlighting the shift towards cloud-based solutions for scalability and efficiency.
+5. Excel’s high rank demonstrates its continued relevance for data analysis and reporting. Its user-friendly interface and powerful functionalities for data manipulation make it a staple tool for many data professionals.
+6. Java’s presence on the list indicates its role in building scalable, high-performance applications. It’s often used for big data technologies like Apache Hadoop and Apache Spark, which are critical for processing large datasets.
+7. Apache Spark is crucial for big data processing, known for its speed and ability to handle large-scale data processing. Its ranking reflects the growing need for distributed computing frameworks.
+8. Scala is often used with Apache Spark, providing an efficient language for big data processing. Its ranking suggests that knowing Scala can be advantageous for roles involving big data technologies.
+9. Hadoop’s inclusion highlights the importance of big data frameworks. Although newer technologies like Spark are gaining traction, Hadoop remains foundational for distributed storage and processing of large datasets.
+10. Amazon Web Services (AWS) is another major cloud computing platform. Its ranking emphasizes the importance of cloud expertise, given AWS’s extensive use in data storage, machine learning, and data processing.
+11. Keras, often used in conjunction with TensorFlow, simplifies the creation of neural networks. Its ranking signifies the need for tools that streamline deep learning model development.
+12. A strong foundation in statistics is essential for data analysis, machine learning, and interpreting data. This skill is fundamental for understanding data patterns and building predictive models.
+13. Tableau’s presence indicates the importance of data visualization. Its ability to create interactive and insightful visualizations makes it a critical tool for communicating data insights.
+14. NLP’s ranking shows the growing importance of processing and analyzing human language data. This skill is crucial for roles focused on text analysis, sentiment analysis, and conversational AI.
+15. R remains a powerful tool for statistical computing and graphics. Its inclusion signifies its importance in data analysis, especially in academia and research settings.
+
+### Trends and Implications
+1. Growing Importance of Cloud and Big Data Technologies: The presence of Azure, AWS, Spark, and Hadoop indicates a trend towards leveraging cloud infrastructure and big data frameworks for scalable and efficient data processing.
+
+2. Rise of Deep Learning: The ranking of PyTorch, TensorFlow, and Keras reflects the increasing adoption of deep learning techniques in various data roles, driven by advancements in AI.
+
+3. Essential Data Analysis Skills: Python, SQL, Excel, and R highlight the core skills needed for data manipulation, analysis, and visualization, which are fundamental across all data-related roles.
+
+4. Data Visualization and Communication: Tools like Tableau underscore the need for effectively communicating data insights through visual means, which is crucial for decision-making processes.
+## Most frequent skills for each job title 
+Because in the previous section, our results were broad and cover wide range of data roles requrements and skill set, in this section, I provide most common skill set for four data role on which this project focus.The results are as follows:
+
+### Data Analyst
+1. The bar chart showed the top 3 most frequent skills mentioned in job descriptions and backgrounds for the job title "Data Analyst".
+Top skills in this bar chart included:
+* Statistics
+* SQL
+* Excel
+The frequency of these skills is relatively low, suggesting that either the dataset is small or the job descriptions and backgrounds for "Data Analyst" are varied and do not frequently mention specific skills.
+The skills "Statistics", "SQL", and "Excel" are foundational for data analysis roles, indicating that these are essential skills for a Data Analyst.
+
+### Data Scientist
+The bar chart showed the top 10 most frequent skills mentioned in job descriptions and backgrounds for the job title "Data Scientist".
+Top skills in this bar chart included:
+* Python
+* SQL
+* "R"
+* Hadoop
+* Scala
+* Java
+Python is a primary programming language for data scientists and after that R would be essential. SQL is a crucial skill querying in this role.
+Hadoop enables data scientists to handle and process large volumes of data efficiently.
+Scala is essential for working with Apache Spark, a powerful tool for in-memory data processing.
+Java provides a robust and high-performance programming environment, essential for integrating with enterprise systems and optimizing big data frameworks.
+
+### Data Engineer
+The bar chart showed the top 10 most frequent skills mentioned in job descriptions and backgrounds for the job title "Data Engineer".
+Top skills in this bar chart included:
+* SQL
+* Hadoop 
+* Spark
+* Azure
+* AWS
+* Keras
+* PyTorch
+
+SQL is a crucial skill for Data Engineers, emphasizing the importance of database management and querying in this role.
+The presence of big data technologies like Hadoop and Spark, as well as cloud platforms like Azure and AWS, highlights the technical and versatile nature of Data Engineering roles.
+The inclusion of machine learning frameworks such as Keras and PyTorch suggests that Data Engineers may also work on machine learning and AI-related projects.
+
+### Machine Learning Engineer
+The bar chart displayed the top 10 most frequently mentioned skills in job descriptions and backgrounds for the job title "Machine Learning Engineer". 
+Top skills in this bar chart included:
+* Python
+* PyTorch
+* TensorFlow
+* Scala
+* Java
+* SQL
+* NLP
+* Keras
+
+The prominence of Python, PyTorch, and TensorFlow indicates a strong emphasis on deep learning skills in machine learning engineering roles. Python is a primary programming language for machine learning and data science due to its simplicity and extensive libraries such as NumPy, Pandas, and scikit-learn. 
+Scala, often used with Apache Spark for big data processing, suggests that machine learning engineers might also engage in large-scale data manipulation and processing tasks.
+SQL's presence indicates the necessity of managing and querying databases, which is crucial for handling the data used in machine learning models.
+NLP pointed out to the importance of working with text data, a common requirement in machine learning tasks focused on language.
+Keras is an API that can run on top of TensorFlow, making it easier to build and train deep learning models. Its mention indicates familiarity with high-level deep learning model development tools.
+# Challenges and future research
+The low frequency of skill mentions might be due to a small sample size or inconsistent formatting of job descriptions and backgrounds. Cleaning and standardizing the text data further might provide more insights. Due to limitations, the dataset was collected over a brief timeframe, lacking additional features such as location, company details, and size for in-depth analysis. However, with real data gathered over a broader time span and across diverse locations globally, opportunities arise to discern trends and patterns. For example, it becomes feasible to trace the evolution of skill demands over time and their geographical variations. Such insights can contribute to forecasting future trends in the job market.
+
+# Conclusion
+* Data Analyst: The skills mentioned are foundational and widely applicable across many data-related tasks, focusing on analysis and data handling.
+
+* Data Scientist: Diverse skill set tailored for extracting insights from complex datasets. Proficiency in programming languages like Python, R, and SQL allows them to manipulate and analyze data efficiently. Additionally, familiarity with big data technologies such as Hadoop enables data scientists to handle large-scale datasets effectively. Furthermore, expertise in languages like Scala and Java equips them with the tools necessary for building scalable and robust data processing pipelines. This comprehensive skill set empowers data scientists to tackle a wide range of analytical challenges, from exploratory data analysis to building predictive models and deploying data-driven solutions.
+
+
+* Data Engineer: The skills set is more technically diverse, involving big data processing, cloud computing, and machine learning, indicating a more complex and technical nature of the role compared to Data Analysts.
+
+* Machine Learning Engineer: The skill set indicates a strong emphasis on deep learning skills and being versatile in their programming skills like Scala, Java and SQL. These enable machine learning engineers to handle both data processing and system integration.
+
+## Comparison of Data Scientist and Data Analyst Roles
+Role complexity: Data scientist roles often involve more complex and advanced analytical techniques compared to data analyst roles. This includes the use of machine learning, predictive modeling, and algorithm development.
+
+Collaboration vs. individual work: Data scientists are more likely to work in collaborative team settings, whereas data analysts might work more independently or within smaller teams focused on specific data tasks.
+
+Technical depth: Data scientists typically require a deeper understanding of programming, machine learning, and statistical modeling. Data analysts, while still technically skilled, may focus more on data querying, basic statistical analysis, and reporting.
+
+Business alignment: Both roles require alignment with business objectives, but data scientists might be more involved in strategic planning and high-level decision-making due to their ability to generate advanced insights.
+
+Reporting and communication: Data analysts often focus on creating reports and dashboards for regular business operations, while data scientists focus on deriving insights that can drive long-term strategy and innovation.
+
+## Comparison of Data Engineer and Data Scientist Roles
+1. Primary focus:
+Data engineers: Focus on the infrastructure, data pipelines, and ensuring data availability and integrity. Their work is foundational, enabling data scientists and analysts to perform their analyses.
+Data scientists: Focus on analyzing data, building predictive models, and generating insights from data. They rely on the infrastructure and data prepared by data engineers.
+
+2. Technical skill sets:
+Data engineers: Require strong skills in database management, ETL processes, and familiarity with big data tools and platforms. They often work with technologies like Hadoop, Spark, and various ETL tools.
+Data scientists: Need skills in statistical analysis, machine learning, and programming (e.g., Python, R). They work with tools and libraries such as TensorFlow, PyTorch, and scikit-learn.
+
+3. Role in data pipeline:
+Data engineers: Build and maintain the data pipelines and infrastructure. They ensure that data flows smoothly from source to destination, is properly cleaned, transformed, and stored.
+Data scientists: Utilize the data provided by these pipelines to perform analysis, develop models, and generate insights. They focus on making sense of the data and applying it to solve business problems.
+
+4. Collaboration:
+Data engineers: Work closely with data scientists to understand their data needs and ensure that the data infrastructure supports advanced analytics and modeling.
+Data scientists: Work closely with key business decision-makersand stakeholders to drive business impact. They also rely on data engineers to provide clean, structured data, and often provide feedback on data requirements and quality.
+
+## Comparison of Machine Learning Engineer with Data Engineer and Data Scientist Roles
+
+Data Engineer
+
+1. Primary focus:
+
+Machine Learning Engineer: Focus on building, training, and deploying ML models and integrating them into production systems.
+Data engineer: focus on building and maintaining the data infrastructure, including data pipelines and ETL processes.
+
+2. Technical skill sets:
+Machine Learning Engineer: Requires deep understanding of ML algorithms, model optimization, and deployment.
+Data engineer: requires proficiency in database management, data processing frameworks, and ETL tools.
+
+3. Role in data pipeline:
+Machine learning engineer: works on the modeling and deployment stages, ensuring models are performant and integrated into applications.
+Data engineer: Handles the data ingestion, cleaning, and storage processes, ensuring data is ready for analysis and modeling.
+
+
+Data Scientist
+
+1. Primary Focus:
+Machine learning engineer: focuses on implementing and scaling machine learning models, often with a strong emphasis on production-readiness.
+
+Data scientist: focuses on exploratory data analysis, statistical modeling, and deriving insights from data.
+
+2. Technical skill sets:
+Machine Learning Engineer: Requires strong software engineering skills in addition to machine learning expertise.
+
+Data scientist: requires strong analytical skills, statistical knowledge, and proficiency in data visualization tools.
+
+3. Collaboration:
+Machine learning engineer: collaborates closely with data scientists to understand the models they develop and ensure they are deployed effectively.
+
+Data scientist: collaborates with both data engineers and ML engineers to ensure that data is ready for analysis and that models are developed and validated before deployment.
+
+# References
+Text Analysis of Job Descriptions for Data Scientists, Data Engineers, Machine Learning Engineers and Data Analysts (2022) (https://methodmatters.github.io/data-jobs-europe-2-text/) 
+
+@article{Leon2017SkillsAC,
+  title={Skills and Competencies Required for Jobs in Business Analytics: A Content Analysis of Job Advertisements Using Text Mining},
+  author={Linda A. Leon and Kala Chand Seal and Zbigniew H. Przasnyski and Ian Wiedenman},
+  journal={Int. J. Bus. Intell. Res.},
+  year={2017},
+  volume={8},
+  pages={1-25},
+  url={https://api.semanticscholar.org/CorpusID:42712083}
+}
+
+@article{Safi2022MiningJD,
+  title={Mining Job description to understand the on-demand skills and expertise in big data \& analytics},
+  author={Feras Safi and Md Masbaul Alam Polash},
+  journal={2022 International Conference on Innovations in Science, Engineering and Technology (ICISET)},
+  year={2022},
+  pages={583-588},
+  url={https://api.semanticscholar.
+  org/CorpusID:249033067}
+}
+
+@article{Zhong2023CharacterizingTJ,
+  title={Characterizing the Job-task-skill Pattern of Job Requirements with Job Advertisement Mining},
+  author={Anyuan Zhong and Ruiyu Qiu and Xiangxian Zhang and Shaojie Lv and Linxiao Song},
+  journal={Proceedings of the 2023 6th International Conference on Computers in Management and Business},
+  year={2023},
+  url={https://api.semanticscholar.org/CorpusID:259253637}
+}

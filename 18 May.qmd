@@ -1,0 +1,449 @@
+```{python}
+import pandas as pd
+import os
+
+# Define the directory where your Excel files are located
+directory = 'E:\\Data Science for Society and Business\\2 Semester\\Text analysis\\New\\'
+
+file_names = ['xing2.xlsx', 'xing-data-1.xlsx','Machine-learning-US-1.xlsx','data-scientist-US-1.xlsx','Data-analyst-US-1.xlsx']
+
+
+file_paths = [os.path.join(directory, file_name) for file_name in file_names]
+
+dataframes = []
+
+
+for file_path in file_paths:
+    df = pd.read_excel(file_path)
+    dataframes.append(df)
+
+
+df = pd.concat(dataframes, ignore_index=True)
+
+# Save the combined dataframe to a new Excel file
+df.to_excel('\\Data Science for Society and Business\\2 Semester\\Text analysis\\New3\\combined_jobs.xlsx', index=False)
+
+```
+```{python}
+df.shape
+df.head
+```
+
+```{python}
+# Check for missing values in each column and count them
+missing_values = df.isna().sum()
+
+print("Number of missing values in each column:")
+print(missing_values)
+```
+```{python}
+# Replace missing values in the JobDescription and Background columns with non-NaN rows
+df['JobDescription'] = df['JobDescription'].fillna(method='ffill')
+df['Background'] = df['Background'].fillna(method='ffill')
+```
+
+```{python}
+# List of columns to keep
+columns_to_keep = ['JobTitle', 'JobDescription', 'Background']
+
+df = df[columns_to_keep]
+
+print("Column names:")
+print(df.columns)
+```
+
+```{python}
+# Count occurrences of each job title
+import re
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+patterns = {
+    "Data Analyst": r"data\s*analyst",
+    "Data Scientist": r"data\s*scientist",
+    "Data Engineer": r"data\s*engineer",
+    "Machine Learning Engineer": r"machine\s*learning"
+}
+
+
+job_title_counts = {}
+
+
+for title, pattern in patterns.items():
+    count = df['JobTitle'].str.contains(pattern, case=False, flags=re.IGNORECASE).sum()
+    job_title_counts[title] = count
+
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=list(job_title_counts.keys()), y=list(job_title_counts.values()))
+plt.title('Counts of Specified Job Titles')
+plt.ylabel('Count')
+plt.xlabel('Job Title')
+plt.xticks(rotation=45)  
+plt.show()
+
+```
+
+```{python}
+# preprocess text
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+import string
+import spacy
+
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+
+nlp = spacy.load('en_core_web_sm')
+
+
+def preprocess_text(text):
+    
+    text = text.lower()
+    
+    
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    
+    
+    tokens = word_tokenize(text)
+    
+    
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word not in stop_words]
+    
+    
+    doc = nlp(" ".join(tokens))
+    lemmatized_tokens = [token.lemma_ for token in doc]
+    
+    
+    preprocessed_text = ' '.join(lemmatized_tokens)
+    
+    return preprocessed_text
+
+
+df['JobDescription'] = df['JobDescription'].apply(preprocess_text)
+df['Background'] = df['Background'].apply(preprocess_text)
+
+
+print(df[['JobDescription', 'Background']].head())
+
+```
+
+```{python}
+# Calculate word frequency distribution for each column
+from nltk.tokenize import word_tokenize
+from nltk.probability import FreqDist
+import pandas as pd
+
+
+def calculate_word_frequency(text):
+    tokens = word_tokenize(text)
+    freq_dist = FreqDist(tokens)
+    return freq_dist
+
+
+background_freq_dist = calculate_word_frequency(' '.join(df['Background']))
+job_description_freq_dist = calculate_word_frequency(' '.join(df['JobDescription']))
+
+
+background_freq_df = pd.DataFrame(background_freq_dist.items(), columns=['Word', 'Frequency']).sort_values(by='Frequency', ascending=False)
+job_description_freq_df = pd.DataFrame(job_description_freq_dist.items(), columns=['Word', 'Frequency']).sort_values(by='Frequency', ascending=False)
+
+
+print("Top 20 words by frequency in Background:")
+print(background_freq_df.head(20))
+
+print("\nTop 20 words by frequency in JobDescription:")
+print(job_description_freq_df.head(20))
+
+```
+
+```{python}
+# Plot word frequency distribution for Background and JobDescription
+import seaborn as sns
+
+
+plt.figure(figsize=(10, 6))
+sns.barplot(data=background_freq_df.head(20), x='Word', y='Frequency')
+plt.title('Top 20 Words by Frequency in Background')
+plt.xlabel('Word')
+plt.ylabel('Frequency')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Plot word frequency distribution for JobDescription
+plt.figure(figsize=(10, 6))
+sns.barplot(data=job_description_freq_df.head(20), x='Word', y='Frequency')
+plt.title('Top 20 Words by Frequency in JobDescription')
+plt.xlabel('Word')
+plt.ylabel('Frequency')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+```
+
+```{python}
+# Calculate word frequency distribution for each job title
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from collections import Counter
+
+
+job_titles = ["Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"]
+
+
+job_title_word_freq = {title: Counter() for title in job_titles}
+
+
+for title in job_titles:
+    
+    filtered_df = df[df['JobTitle'].str.contains(title, case=False, regex=False)]
+    
+    
+    tokens = ' '.join(filtered_df['JobDescription']).split()
+    word_freq = Counter(tokens)
+    
+    
+    job_title_word_freq[title].update(word_freq)
+
+
+for title, word_freq in job_title_word_freq.items():
+    print(f"Top skills for {title}:")
+    print(word_freq.most_common(10))  # Print top 10 most common skills
+    print()
+
+```
+
+```{python}
+# Plot top frequent words for each job title
+import matplotlib.pyplot as plt
+
+
+for title, word_freq in job_title_word_freq.items():
+    
+    top_skills = dict(word_freq.most_common(10))
+    
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(top_skills.keys(), top_skills.values())
+    plt.title(f'Top 10 Skills for {title}')
+    plt.xlabel('Skill')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+```
+
+```{python}
+# Plot bar chart for the most frequent skills across all job titles using 'JobDescription' and 'Background' 
+import matplotlib.pyplot as plt
+from collections import Counter
+import pandas as pd
+
+
+skills_list = [
+    'python', 'r', 'sql', 'java', 'c++', 'scala', 'hadoop', 'spark', 'tableau', 'sas', 'excel',
+    'power bi', 'aws', 'azure', 'google cloud', 'tensorflow', 'keras', 'pytorch', 'machine learning',
+    'deep learning', 'data analysis', 'data engineering', 'data visualization', 'big data', 'nlp', 
+    'natural language processing', 'statistics', 'data mining', 'data wrangling', 'data cleaning'
+]
+
+
+def filter_skills(text):
+    tokens = text.lower().split()
+    filtered_skills = [token for token in tokens if token in skills_list]
+    return filtered_skills
+
+
+combined_text_all = ' '.join(df['JobDescription'].fillna('')) + ' ' + ' '.join(df['Background'].fillna(''))
+
+
+skills_all = filter_skills(combined_text_all)
+word_freq_all = Counter(skills_all)
+
+
+top_skills_all = dict(word_freq_all.most_common(20))
+
+
+plt.figure(figsize=(10, 6))
+plt.bar(top_skills_all.keys(), top_skills_all.values())
+plt.title('Top 20 Most Frequent Skills Across All Job Titles')
+plt.xlabel('Skill')
+plt.ylabel('Frequency')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+```
+```{python}
+# Predefined list of common data-related skills and calculate word frequency distribution for each job title
+import matplotlib.pyplot as plt
+from collections import Counter
+import pandas as pd
+
+
+skills_list = [
+    'python', 'r', 'sql', 'java', 'c++', 'scala', 'hadoop', 'spark', 'tableau', 'sas', 'excel',
+    'power bi', 'aws', 'azure', 'google cloud', 'tensorflow', 'keras', 'pytorch', 'machine learning',
+    'deep learning', 'data analysis', 'data engineering', 'data visualization', 'big data', 'nlp', 
+    'natural language processing', 'statistics', 'data mining', 'data wrangling', 'data cleaning'
+]
+
+
+def filter_skills(text):
+    tokens = text.lower().split()
+    filtered_skills = [token for token in tokens if token in skills_list]
+    return filtered_skills
+
+
+job_titles = ["Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"]
+job_title_word_freq = {title: Counter() for title in job_titles}
+
+
+for title in job_titles:
+    
+    filtered_df = df[df['JobTitle'].str.contains(title, case=False, regex=False)]
+    
+    
+    combined_text = ' '.join(filtered_df['JobDescription'].fillna('')) + ' ' + ' '.join(filtered_df['Background'].fillna(''))
+    
+    
+    skills = filter_skills(combined_text)
+    word_freq = Counter(skills)
+    
+    
+    job_title_word_freq[title].update(word_freq)
+
+
+for title, word_freq in job_title_word_freq.items():
+    
+    top_skills = dict(word_freq.most_common(10))
+    
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(top_skills.keys(), top_skills.values())
+    plt.title(f'Top 10 Skills for {title}')
+    plt.xlabel('Skill')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+```
+
+```{python}
+# Word cloud for all job ads
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+from collections import Counter
+import pandas as pd
+
+
+job_titles = ["Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"]
+
+
+job_title_word_freq = {title: Counter() for title in job_titles}
+
+
+for title in job_titles:
+    
+    filtered_df = df[df['JobTitle'].str.contains(title, case=False, regex=False)]
+    
+    
+    combined_text = ' '.join(filtered_df['JobDescription'].fillna('')) + ' ' + ' '.join(filtered_df['Background'].fillna(''))
+    
+    
+    tokens = combined_text.lower().split()
+    word_freq = Counter(tokens)
+    
+    
+    job_title_word_freq[title].update(word_freq)
+
+
+combined_word_freq = Counter()
+for title, word_freq in job_title_word_freq.items():
+    combined_word_freq.update(word_freq)
+
+
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(combined_word_freq)
+
+
+plt.figure(figsize=(15, 7))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Word Cloud Comparing Frequency of Words Across Job Titles')
+plt.show()
+
+```
+
+```{python}
+# Word cloud for each job title
+import pandas as pd
+from collections import Counter
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+
+df['JobDescription'] = df['JobDescription'].str.replace(r'\betc\b', '', regex=True, case=False)
+df['Background'] = df['Background'].str.replace(r'\betc\b', '', regex=True, case=False)
+
+df['JobDescription'] = df['JobDescription'].str.replace(r'\byear\b', '', regex=True, case=False)
+df['Background'] = df['Background'].str.replace(r'\byear\b', '', regex=True, case=False)
+
+
+print(df[['JobDescription', 'Background']].head())
+
+
+job_titles = ["Data Analyst", "Data Scientist", "Data Engineer", "Machine Learning Engineer"]
+
+
+colormaps = {
+    "Data Analyst": 'Blues',
+    "Data Scientist": 'Greens',
+    "Data Engineer": 'Reds',
+    "Machine Learning Engineer": 'Purples'
+}
+
+
+job_title_word_freq = {title: Counter() for title in job_titles}
+
+
+for title in job_titles:
+    
+    filtered_df = df[df['JobTitle'].str.contains(title, case=False, regex=False)]
+    
+    
+    combined_text = ' '.join(filtered_df['JobDescription'].fillna('')) + ' ' + ' '.join(filtered_df['Background'].fillna(''))
+    
+    
+    tokens = combined_text.lower().split()
+    word_freq = Counter(tokens)
+    
+    
+    job_title_word_freq[title].update(word_freq)
+
+
+fig, axes = plt.subplots(2, 2, figsize=(20, 10))
+
+
+for ax, (title, colormap) in zip(axes.flatten(), colormaps.items()):
+    word_freq = job_title_word_freq[title]
+    wordcloud = WordCloud(width=800, height=400, background_color='white', colormap=colormap).generate_from_frequencies(word_freq)
+    
+    ax.imshow(wordcloud, interpolation='bilinear')
+    ax.axis('off')
+    ax.set_title(f'{title} Word Cloud', fontsize=20)
+
+plt.tight_layout()
+plt.show()
+
+```
